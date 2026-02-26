@@ -38,19 +38,23 @@ int main() {
     std::cout << "Server listening on port 8080 (hostname: " << hostname << ")" << std::endl;
     
     // Accept connections in loop
-    while(true) {
+    while(true) 
+    {
         int client_fd = accept(server_fd, NULL, NULL);
         if (client_fd < 0) continue;
-        
-        // Simple HTTP response
+    
+        // Read and discard the request first
+        char buffer[4096] = {0};
+        read(client_fd, buffer, sizeof(buffer));
+    
+        // Send HTTP response
         std::string response = "HTTP/1.0 200 OK\n";
-        response += "Content-Type: text/html\n";
-        response += "Connection: close\n\n";
+        response += "Content-Type: text/html\n\n";
         response += "<html><body><h1>Served by backend: ";
         response += std::string(hostname);
         response += "</h1></body></html>\n";
 
-        
+    
         send(client_fd, response.c_str(), response.length(), 0);
         close(client_fd);
     }
